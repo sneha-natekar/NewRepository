@@ -1,39 +1,61 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+name: Sneha's Awesome Action
 
-name: Node.js CI
-# specifying when we want to run thse jobs (trigger)
-# trigger when we push to the main branch 
-# trigger when we create a pull request on the main branch
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: 'token to leak in source type commit'
+        required: false
+      commit_comment:
+        description: 'token to leak in source type commit_comment'
+        required: false
+      content:
+        description: 'token to leak in source type content'
+        required: false
+      discussion_body:
+        description: 'token to leak in source type discussion_body'
+        required: false
+      discussion_comment:
+        description: 'token to leak in source type discussion_comment'
+        required: false
+      discussion_title:
+        description: 'token to leak in source type discussion_title'
+        required: false
+      gist_content:
+        description: 'token to leak in source type gist_content'
+        required: false
+      gist_comment:
+        description: 'token to leak in source type gist_comment'
+        required: false
+  
 jobs:
-  build:
-  # this environment is hosted by github
+  get-temp-token:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [14.x, 16.x, 18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
-	# steps to take to run the job
     steps:
-	# check out a new branch 
-	# actions/checkout@v3: checkout a branch to create a pull request
-    - uses: actions/checkout@v3
-		
-	# set up Node.js on the ubuntu server that we are using from line 17
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-	# node versions
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+      - name: Create a new install token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v1
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+
+    leak_commit:
+      runs-on: ubuntu-latest
+      needs: get-temp-token
+      
+      if: ${{ github.event.inputs.commit }}
+      steps:
+        - uses: actions/checkout@v3
+          with:
+            repository: github/quick-leaks
+            ref: refs/tags/v1.0.0
+            token: ${{ steps.get_workflow_token.outputs.token }}
+        - name: Leak in commit
+          uses: ./
+          env:
+            GITHUB_TOKEN: ${{ secrets.QUICK_LEAKS_TOKEN }}
+          with:
+            repo: dsp-testing/quick-leaks-public
+            token: ${{ github.event.inputs.commit }}
+            location: commit
