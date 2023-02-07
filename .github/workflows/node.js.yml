@@ -13,7 +13,7 @@ on:
 
 jobs:
   build:
-		# this environment is hosted by github
+  # this environment is hosted by github
     runs-on: ubuntu-latest
 
     strategy:
