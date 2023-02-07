@@ -21,16 +21,16 @@ jobs:
         node-version: [14.x, 16.x, 18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-		# steps to take to run the job
+	# steps to take to run the job
     steps:
-		# check out a new branch 
-		# actions/checkout@v3: checkout a branch to create a pull request
+	# check out a new branch 
+	# actions/checkout@v3: checkout a branch to create a pull request
     - uses: actions/checkout@v3
 		
-		# set up Node.js on the ubuntu server that we are using from line 17
+	# set up Node.js on the ubuntu server that we are using from line 17
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
-			# node versions
+	# node versions
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
